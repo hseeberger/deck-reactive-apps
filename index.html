@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8">
 
-    <title>TITLE</title>
+    <title>Reactive Apps with Akka and AngularJS</title>
 
-    <meta name="description" content="TITLE">
-    <meta name="author" content="AUTHOR">
+    <meta name="description" content="Reactive Apps with Akka and AngularJS">
+    <meta name="author" content="Heiko Seeberger">
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -48,30 +48,331 @@
 <!-- ########################################################################################### -->
 
 <section data-markdown data-background="images/codecentric-title-background-16x9.png"><script type="text/template">
-## TITLE
+## Reactive Apps
+## with Akka and AngularJS
 
-AUTHOR, codecentric
+Heiko Seeberger, codecentric
 </script></section>
 
 <!-- ########################################################################################### -->
 
 <section data-markdown><script type="text/template">
-### TODO
+### Reactive Traits
 
-- TODO
-- TODO
+![Reactive traits](images/reactive.svg "Reactive traits") <!-- .element class="max" -->
 </script></section>
 
 <!-- ########################################################################################### -->
 
 <section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
-### TODO
+### Let's go Reactive
+### with Akka and AngularJS
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Reactive Flows
+
+![Reactive Flows – screenshot](images/reactive-flows-screenshot.png "Reactive Flows – screenshot") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Reactive Flows – Architecture
+
+![Reactive Flows – architecture](images/reactive-flows-architecture.svg "Reactive Flows – architecture") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Reactive Flows – Actors
+
+![Reactive Flows – actors](images/reactive-flows-hierarchy.svg "Reactive Flows – actors") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Reactive Flows – FlowFacade Messages
+
+``` scala
+final case object GetFlows
+final case class Flows(flows: Set[FlowDesc])
+
+final case class AddFlow(label: String)
+final case class FlowExists(desc: FlowDesc)
+final case class FlowAdded(desc: FlowDesc) extends FlowEvent
+
+final case class RemoveFlow(name: String)
+final case class FlowUnknown(name: String)
+final case class FlowRemoved(name: String) extends FlowEvent
+
+final case class GetMessages(name: String, id: Long, count: Short)
+
+final case class AddMessage(name: String, text: String)
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Reactive Flows – Flow Messages
+
+``` scala
+final case class GetMessages(id: Long, count: Short)
+final case class Messages(messages: Vector[Message])
+
+final case class AddMessage(text: String)
+final case class MessageAdded(name: String, message: Message)
+    extends MessageEvent
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### AngularJS
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### AngularJS – Templates
+
+``` html
+<div data-ng-repeat="message in messages | orderBy:'time':true">
+    <div>
+        <div class="time">{{message.time | date:'yy/MM/dd HH:mm'}}</div>
+        <div class="text">{{message.text}}</div>
+    </div>
+</div>
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### AngularJS – Controllers
+
+``` js
+reactiveFlowsControllers.controller('HomeCtrl', ['$scope', function($scope) {
+
+    $scope.flows = [
+        {name: 'akka', label: 'Akka'},
+        {name: 'angularjs', label: 'AngularJS'}
+    ];
+
+    $scope.messages = [
+        {text: 'Akka rocks!', time: '2016-06-29 19:20:21'}
+    ];
+
+    ...
+}
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### AngularJS – Demo
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka HTTP – Server Binding
+
+``` scala
+Http(context.system)
+  .bindAndHandle(route, address, port)
+  .pipeTo(self)
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka HTTP – Routing
+
+``` scala
+def route = {
+  import Directives._
+  def redirectSingleSlash = pathSingleSlash {
+    get {
+      redirect("index.html", PermanentRedirect)
+    }
+  }
+  getFromResourceDirectory("web") ~ redirectSingleSlash
+}
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### Akka HTTP – Demo
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Server-Sent Events
+
+![Server-Sent events](images/sse-screenshot.png "Server-Sent events") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Server-Sent Events – Browser Support
+
+![Server-Sent events – browser support](images/sse-support-screenshot.png "Server-Sent events – browser support") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Server-Sent Events – Communication
+
+![Server-Sent events – communication](images/sse.svg "Server-Sent events – communication") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Server-Sent Events – Client
+
+``` js
+// SSE for messages
+var messageSource = new EventSource('/message-events');
+messageSource.addEventListener(
+    'added',
+    function(event) {
+        $scope.$apply(function() {
+            var messageAdded = JSON.parse(event.data);
+            if ($scope.currentFlowName == messageAdded.name) {
+                var message = messageAdded.message;
+                message.time = Date.parse(message.time);
+                $scope.messages.push(message);
+            }
+        });
+    },
+    false
+);
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Server-Sent Events – Server
+
+``` scala
+def messageEvents = path("message-events") {
+  get {
+    complete {
+      events(fromMessageEvent)
+    }
+  }
+}
+
+def events[A: ClassTag](toServerSentEvent: A => ServerSentEvent) = {
+  def subscribe(subscriber: ActorRef) =
+    mediator ! Subscribe(className[A], subscriber)
+  Source
+    .actorRef[A](eventBufferSize, OverflowStrategy.dropHead)
+    .map(toServerSentEvent)
+    .mapMaterializedValue(subscribe)
+}
+```
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### Server-Sent Events – Demo
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka Distributed Data
+
+- Consistency of replicas without central coordination?
+- Certain data structures allow for eventual consistency
+  - Conflict-Free Replicated Data Types (CRDTs)
+  - State-based (CvRDTs) or operation-based (CmRDTs)
+- Akka Distributed Data offers various CvRDTs
+  - Counter, Set, Map, etc.
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka Distributed Data – Communication
+
+![Akka Distributed Data](images/akka-distributed-data.svg "Akka Distributed Data") <!-- .element: class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### Akka Distributed Data – Demo
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka Cluster Sharding
+
+- Partitioning of identifiable actors across a cluster
+- Management of subsets – shards
+- Dynamically adapt to cluster topology
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka Cluster Sharding – Communication
+
+![Akka Cluster Sharding](images/akka-cluster-sharding.svg "Akka Cluster Sharding") <!-- .element class="max" -->
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### Akka Cluster Sharding – Demo
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown><script type="text/template">
+### Akka Persistence
+
+- How can actor state be persisted and recovered?
+- Event Sourcing:
+  1. Create event for valid command
+  1. Let journal persist event
+  1. Apply event after successful persistence
+- On recovery only events are replayed
+</script></section>
+
+<!-- ########################################################################################### -->
+
+<section data-markdown data-background="images/codecentric-green-background-16x9.png"><script type="text/template">
+### Akka Persistence – Demo
 </script></section>
 
 <!-- ########################################################################################### -->
 
 <section data-markdown><script type="text/template">
 ## Thank you!
+
+- Code on GitHub: [hseeberger/reactive-flows](https://github.com/hseeberger/reactive-flows)
+- Follow me on Twitter: [@hseeberger](https://twitter.com/hseeberger)
 
 &nbsp;
 
